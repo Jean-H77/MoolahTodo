@@ -1,13 +1,12 @@
 using Core.Dto;
 using Core.Dto.Validators;
 using Core.Interfaces;
-using Core.Models.Mongodb;
+using Core.Models;
 using FluentValidation;
 using Infrastructure.Context;
 using Infrastructure.Data;
 using Infrastructure.Data.Providers;
 using MoolahTodo.Endpoints;
-using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 

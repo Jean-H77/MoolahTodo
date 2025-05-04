@@ -1,4 +1,4 @@
-﻿namespace Core.Models.Mongodb;
+﻿namespace Core.Models;
 
 public class MongoDbSettings
 {
