@@ -13,12 +13,12 @@ public class MongoDbTodoProvider(MongoDbContext db) : ITodoDataProvider
     public async Task<PaginatedTodoResult> GetAllTodos(int page)
     {
         var totalCount = await db.TodoCollection.CountDocumentsAsync(FilterDefinition<MongoTodoEntity>.Empty);
-        var todos = await GetPaginatedListAsync(db.TodoCollection, FilterDefinition<MongoTodoEntity>.Empty, page);
+        var mongoTodoEntities = await GetPaginatedListAsync(db.TodoCollection, FilterDefinition<MongoTodoEntity>.Empty, page);
         
         return new PaginatedTodoResult
         {
             TotalCount = (int)totalCount, // I don't think an integer overflow will happen
-            Todos = todos.Select(MongoTodoEntity.ToDto).ToList()
+            Todos = mongoTodoEntities.Select(MongoTodoEntity.ToDto).ToList()
         };
     }
 
@@ -31,12 +31,12 @@ public class MongoDbTodoProvider(MongoDbContext db) : ITodoDataProvider
                 new BsonRegularExpression(search, "i")); 
 
         var totalCount = await db.TodoCollection.CountDocumentsAsync(filter);
-        var todos = await GetPaginatedListAsync(db.TodoCollection, filter, page);
+        var mongoTodoEntities = await GetPaginatedListAsync(db.TodoCollection, filter, page);
 
         return new PaginatedTodoResult
         {
             TotalCount = (int)totalCount,
-            Todos = todos.Select(MongoTodoEntity.ToDto).ToList()
+            Todos = mongoTodoEntities.Select(MongoTodoEntity.ToDto).ToList()
         };
     }
 
@@ -56,19 +56,19 @@ public class MongoDbTodoProvider(MongoDbContext db) : ITodoDataProvider
     public async Task<TodoDto?> GetTodoByGuidAsync(Guid guid)
     {
         var filter = Builders<MongoTodoEntity>.Filter.Eq(x => x.Guid, guid);
-        var todo = await db.TodoCollection.Find(filter).FirstOrDefaultAsync();
+        var mongoTodoEntity = await db.TodoCollection.Find(filter).FirstOrDefaultAsync();
 
-        return todo == null ? null : MongoTodoEntity.ToDto(todo);
+        return mongoTodoEntity == null ? null : MongoTodoEntity.ToDto(mongoTodoEntity);
     }
 
     public async Task<TodoDto> AddTodoAsync(TodoDto todo)
     {
-        var mongoEntity = TodoDto.ToMongoTodoEntity(todo);
-        mongoEntity.Guid = Guid.NewGuid();
+        var mongoTodoEntity = TodoDto.ToMongoTodoEntity(todo);
+        mongoTodoEntity.Guid = Guid.NewGuid();
         
-        await db.TodoCollection.InsertOneAsync(mongoEntity);
+        await db.TodoCollection.InsertOneAsync(mongoTodoEntity);
         
-        return MongoTodoEntity.ToDto(mongoEntity);
+        return MongoTodoEntity.ToDto(mongoTodoEntity);
     }
 
     public async Task<int> DeleteTodoByGuidAsync(Guid guid)
